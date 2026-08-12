@@ -4,32 +4,29 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.5
-  name: tables.databricks.kedge.faros.sh
+  name: connections.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
-    kind: Table
-    listKind: TableList
-    plural: tables
+    - faros
+    kind: Connection
+    listKind: ConnectionList
+    plural: connections
     shortNames:
-    - dbxtbl
-    singular: table
+    - dbxconn
+    singular: connection
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.table
-      name: Table
+    - jsonPath: .spec.host
+      name: Host
       type: string
-    - jsonPath: .spec.catalog
-      name: Catalog
+    - jsonPath: .spec.authType
+      name: Auth
       type: string
-    - jsonPath: .spec.schema
-      name: Schema
-      type: string
-    - jsonPath: .status.conditions[?(@.type=="Ready")].status
-      name: Ready
+    - jsonPath: .status.conditions[?(@.type=="Validated")].status
+      name: Validated
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -38,8 +35,8 @@ spec:
     schema:
       openAPIV3Schema:
         description: |-
-          Table imports a Databricks table into kedge as a stable resource handle. It
-          is a governed pointer plus cached schema, not a copy of table data.
+          Connection configures a Databricks workspace for one faros tenant. It points
+          at tenant-owned Secrets for auth material; credentials never live on the CR.
         properties:
           apiVersion:
             description: |-
@@ -60,53 +57,45 @@ spec:
             type: object
           spec:
             properties:
-              catalog:
-                minLength: 1
+              authType:
+                description: AuthType selects the credential model. PAT is the only
+                  supported model.
+                enum:
+                - pat
                 type: string
-              connectionRef:
+              host:
+                description: Host is the Databricks workspace host, e.g. https://dbc-xyz.cloud.databricks.com.
+                maxLength: 2048
                 minLength: 1
+                pattern: ^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$
                 type: string
-              schema:
-                minLength: 1
-                type: string
-              table:
-                minLength: 1
-                type: string
-              warehouseRef:
-                minLength: 1
-                type: string
+              secretRef:
+                description: SecretRef points at tenant workspace credential/federation
+                  config.
+                properties:
+                  key:
+                    description: |-
+                      Key is the optional key holding credential material. Defaults depend on
+                      the auth type.
+                    type: string
+                  name:
+                    description: Name is the Secret name in the tenant workspace.
+                    minLength: 1
+                    type: string
+                  namespace:
+                    description: Namespace is the Secret namespace in the tenant workspace.
+                      Defaults to default.
+                    type: string
+                required:
+                - name
+                type: object
             required:
-            - catalog
-            - connectionRef
-            - schema
-            - table
-            - warehouseRef
+            - authType
+            - host
+            - secretRef
             type: object
           status:
             properties:
-              columns:
-                description: Columns caches schema for App Studio authoring. It never
-                  stores row data.
-                items:
-                  properties:
-                    comment:
-                      type: string
-                    name:
-                      minLength: 1
-                      type: string
-                    nullable:
-                      type: boolean
-                    type:
-                      minLength: 1
-                      type: string
-                  required:
-                  - name
-                  - type
-                  type: object
-                type: array
-                x-kubernetes-list-map-keys:
-                - name
-                x-kubernetes-list-type: map
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current
@@ -169,8 +158,7 @@ spec:
               observedGeneration:
                 format: int64
                 type: integer
-              refreshedAt:
-                format: date-time
+              workspaceID:
                 type: string
             type: object
         required:

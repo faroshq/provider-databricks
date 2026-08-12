@@ -4,29 +4,29 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.5
-  name: connections.databricks.kedge.faros.sh
+  name: warehouses.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
-    kind: Connection
-    listKind: ConnectionList
-    plural: connections
+    - faros
+    kind: Warehouse
+    listKind: WarehouseList
+    plural: warehouses
     shortNames:
-    - dbxconn
-    singular: connection
+    - dbxwh
+    singular: warehouse
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.host
-      name: Host
+    - jsonPath: .spec.connectionRef
+      name: Connection
       type: string
-    - jsonPath: .spec.authType
-      name: Auth
+    - jsonPath: .spec.warehouseID
+      name: Warehouse
       type: string
-    - jsonPath: .status.conditions[?(@.type=="Validated")].status
-      name: Validated
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -34,9 +34,8 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: |-
-          Connection configures a Databricks workspace for one kedge tenant. It points
-          at tenant-owned Secrets for auth material; credentials never live on the CR.
+        description: Warehouse binds a tenant-visible faros handle to a Databricks
+          SQL warehouse.
         properties:
           apiVersion:
             description: |-
@@ -57,42 +56,15 @@ spec:
             type: object
           spec:
             properties:
-              authType:
-                description: AuthType selects the credential model. PAT is the only
-                  supported model.
-                enum:
-                - pat
-                type: string
-              host:
-                description: Host is the Databricks workspace host, e.g. https://dbc-xyz.cloud.databricks.com.
-                maxLength: 2048
+              connectionRef:
                 minLength: 1
-                pattern: ^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$
                 type: string
-              secretRef:
-                description: SecretRef points at tenant workspace credential/federation
-                  config.
-                properties:
-                  key:
-                    description: |-
-                      Key is the optional key holding credential material. Defaults depend on
-                      the auth type.
-                    type: string
-                  name:
-                    description: Name is the Secret name in the tenant workspace.
-                    minLength: 1
-                    type: string
-                  namespace:
-                    description: Namespace is the Secret namespace in the tenant workspace.
-                      Defaults to default.
-                    type: string
-                required:
-                - name
-                type: object
+              warehouseID:
+                minLength: 1
+                type: string
             required:
-            - authType
-            - host
-            - secretRef
+            - connectionRef
+            - warehouseID
             type: object
           status:
             properties:
@@ -158,7 +130,7 @@ spec:
               observedGeneration:
                 format: int64
                 type: integer
-              workspaceID:
+              state:
                 type: string
             type: object
         required:

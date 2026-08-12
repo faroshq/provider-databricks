@@ -1,12 +1,12 @@
 apiVersion: apis.kcp.io/v1alpha1
 kind: APIResourceSchema
 metadata:
-  name: v260701-fa21f11c.warehouses.databricks.kedge.faros.sh
+  name: v260701-fa21f11c.warehouses.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
+    - faros
     kind: Warehouse
     listKind: WarehouseList
     plural: warehouses
@@ -30,7 +30,7 @@ spec:
       type: date
     name: v1alpha1
     schema:
-      description: Warehouse binds a tenant-visible kedge handle to a Databricks SQL
+      description: Warehouse binds a tenant-visible faros handle to a Databricks SQL
         warehouse.
       properties:
         apiVersion:

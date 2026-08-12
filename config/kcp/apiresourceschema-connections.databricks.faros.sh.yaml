@@ -1,12 +1,12 @@
 apiVersion: apis.kcp.io/v1alpha1
 kind: APIResourceSchema
 metadata:
-  name: v260701-fa21f11c.connections.databricks.kedge.faros.sh
+  name: v260701-fa21f11c.connections.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
+    - faros
     kind: Connection
     listKind: ConnectionList
     plural: connections
@@ -31,7 +31,7 @@ spec:
     name: v1alpha1
     schema:
       description: |-
-        Connection configures a Databricks workspace for one kedge tenant. It points
+        Connection configures a Databricks workspace for one faros tenant. It points
         at tenant-owned Secrets for auth material; credentials never live on the CR.
       properties:
         apiVersion:

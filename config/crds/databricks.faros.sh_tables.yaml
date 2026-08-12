@@ -4,26 +4,29 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.5
-  name: warehouses.databricks.kedge.faros.sh
+  name: tables.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
-    kind: Warehouse
-    listKind: WarehouseList
-    plural: warehouses
+    - faros
+    kind: Table
+    listKind: TableList
+    plural: tables
     shortNames:
-    - dbxwh
-    singular: warehouse
+    - dbxtbl
+    singular: table
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.connectionRef
-      name: Connection
+    - jsonPath: .spec.table
+      name: Table
       type: string
-    - jsonPath: .spec.warehouseID
-      name: Warehouse
+    - jsonPath: .spec.catalog
+      name: Catalog
+      type: string
+    - jsonPath: .spec.schema
+      name: Schema
       type: string
     - jsonPath: .status.conditions[?(@.type=="Ready")].status
       name: Ready
@@ -34,8 +37,9 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Warehouse binds a tenant-visible kedge handle to a Databricks
-          SQL warehouse.
+        description: |-
+          Table imports a Databricks table into faros as a stable resource handle. It
+          is a governed pointer plus cached schema, not a copy of table data.
         properties:
           apiVersion:
             description: |-
@@ -56,18 +60,53 @@ spec:
             type: object
           spec:
             properties:
+              catalog:
+                minLength: 1
+                type: string
               connectionRef:
                 minLength: 1
                 type: string
-              warehouseID:
+              schema:
+                minLength: 1
+                type: string
+              table:
+                minLength: 1
+                type: string
+              warehouseRef:
                 minLength: 1
                 type: string
             required:
+            - catalog
             - connectionRef
-            - warehouseID
+            - schema
+            - table
+            - warehouseRef
             type: object
           status:
             properties:
+              columns:
+                description: Columns caches schema for App Studio authoring. It never
+                  stores row data.
+                items:
+                  properties:
+                    comment:
+                      type: string
+                    name:
+                      minLength: 1
+                      type: string
+                    nullable:
+                      type: boolean
+                    type:
+                      minLength: 1
+                      type: string
+                  required:
+                  - name
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - name
+                x-kubernetes-list-type: map
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current
@@ -130,7 +169,8 @@ spec:
               observedGeneration:
                 format: int64
                 type: integer
-              state:
+              refreshedAt:
+                format: date-time
                 type: string
             type: object
         required:

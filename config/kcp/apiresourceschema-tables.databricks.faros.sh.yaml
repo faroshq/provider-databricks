@@ -1,12 +1,12 @@
 apiVersion: apis.kcp.io/v1alpha1
 kind: APIResourceSchema
 metadata:
-  name: v260630-0d050b9c.tables.databricks.kedge.faros.sh
+  name: v260630-0d050b9c.tables.databricks.faros.sh
 spec:
-  group: databricks.kedge.faros.sh
+  group: databricks.faros.sh
   names:
     categories:
-    - kedge
+    - faros
     kind: Table
     listKind: TableList
     plural: tables
@@ -34,7 +34,7 @@ spec:
     name: v1alpha1
     schema:
       description: |-
-        Table imports a Databricks table into kedge as a stable resource handle. It
+        Table imports a Databricks table into faros as a stable resource handle. It
         is a governed pointer plus cached schema, not a copy of table data.
       properties:
         apiVersion:
