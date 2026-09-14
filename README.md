@@ -1,3 +1,19 @@
+# Databricks provider — retired source mirror
+
+This repository is archived. Automatic source synchronization from
+`faroshq/faros` has ended. Development now lives in
+[faroshq/providers](https://github.com/faroshq/providers/tree/main/providers/databricks).
+
+Databricks remains installable as a platform-managed Faros hub provider;
+self-hosting is optional. Published artifacts keep their existing coordinates:
+`ghcr.io/faroshq/faros-databricks-provider` and
+`oci://ghcr.io/faroshq/charts/faros-databricks-provider`.
+
+Public history and existing licenses remain available. The documentation below
+is the historical mirror snapshot and may describe retired development commands.
+
+---
+
 # Databricks provider
 
 > [!IMPORTANT]
